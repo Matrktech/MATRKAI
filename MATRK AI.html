@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KERON AI </title> <!-- Updated title -->
+
+    <style>
+        /* --- Global Styles & Body --- */
+        :root {
+            --primary-color: #007bff; /* Vibrant Blue */
+            --secondary-color: #6c757d; /* Muted Gray */
+            --light-bg: #f8f9fa;
+            --white-bg: #ffffff;
+            --border-color: #dee2e6;
+            --text-color: #333;
+            --user-message-bg: #dcf8c6; /* Light Green */
+            --bot-message-bg: #e9ecef;  /* Light Gray */
+            --error-message-bg: #f8d7da;
+            --error-text-color: #721c24;
+            --header-bg: var(--primary-color);
+            --header-text: white;
+            --button-hover: #0056b3; /* Darker Blue */
+            --button-disabled: #cccccc;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); /* Subtle gradient background */
+            margin: 0;
+            padding: 15px; /* Add padding for smaller screens */
+            box-sizing: border-box;
+        }
+
+        /* --- Chatbot Container --- */
+        .chatbot-container {
+            width: 100%;
+            max-width: 550px; /* Slightly wider */
+            background-color: var(--white-bg);
+            border-radius: 12px; /* More rounded */
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15); /* Softer shadow */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: calc(100vh - 40px); /* Adjust height for viewport */
+            max-height: 700px; /* Max height constraint */
+        }
+
+        /* --- Header --- */
+        h1 {
+            text-align: center;
+            padding: 18px 15px;
+            margin: 0;
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            font-size: 1.3em; /* Slightly larger */
+            font-weight: 600;
+            /* Optional: Add an icon using ::before if desired */
+        }
+
+        /* --- Chatbox --- */
+        #chatbox {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px 15px;
+            background-color: var(--white-bg);
+            display: flex;
+            flex-direction: column;
+            gap: 12px; /* Spacing between messages */
+            scrollbar-width: thin; /* For Firefox */
+            scrollbar-color: var(--secondary-color) var(--light-bg); /* For Firefox */
+        }
+        /* Webkit scrollbar styles */
+        #chatbox::-webkit-scrollbar {
+            width: 6px;
+        }
+        #chatbox::-webkit-scrollbar-track {
+            background: var(--light-bg);
+            border-radius: 3px;
+        }
+        #chatbox::-webkit-scrollbar-thumb {
+            background-color: var(--secondary-color);
+            border-radius: 3px;
+        }
+
+        /* --- Messages --- */
+        .message {
+            padding: 12px 18px;
+            border-radius: 18px; /* More rounded messages */
+            max-width: 80%; /* Slightly wider max */
+            word-wrap: break-word;
+            line-height: 1.45;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: relative; /* For potential future enhancements like timestamps */
+        }
+        .user-message {
+            background-color: var(--user-message-bg);
+            align-self: flex-end;
+            border-bottom-right-radius: 5px; /* Classic chat bubble tail */
+            color: #303030; /* Darker text on light green */
+        }
+        .bot-message {
+            background-color: var(--bot-message-bg);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            color: var(--text-color);
+        }
+        .error-message {
+            background-color: var(--error-message-bg);
+            color: var(--error-text-color);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            font-weight: 500;
+            border: 1px solid var(--error-text-color);
+        }
+        /* Style for image preview inside user message */
+        .user-message img {
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 4px;
+            margin-right: 8px;
+            margin-bottom: 5px; /* Space below image if text wraps */
+            vertical-align: middle;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .user-message span {
+            vertical-align: middle;
+        }
+
+
+        /* --- Image Preview Area --- */
+        #imagePreviewContainer {
+            padding: 10px 15px;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--light-bg);
+            position: relative;
+            text-align: left; /* Align content left */
+            display: flex; /* Use flex for better alignment */
+            align-items: center;
+            gap: 10px;
+        }
+
+        #imagePreview {
+            max-width: 60px; /* Smaller preview */
+            max-height: 60px;
+            border-radius: 6px; /* Rounded preview */
+            border: 1px solid var(--border-color);
+            object-fit: cover; /* Ensure image covers the area nicely */
+        }
+
+        #imagePreviewContainer #imageName { /* Target name specifically */
+            font-size: 0.85em;
+            color: #555;
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis; /* Add ellipsis for long names */
+            white-space: nowrap; /* Prevent wrapping */
+            flex-grow: 1; /* Allow name to take available space */
+        }
+
+        #clearImageButton {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 15px;
+            line-height: 21px; /* Center 'x' */
+            text-align: center;
+            cursor: pointer;
+            padding: 0;
+            transition: background-color 0.2s ease;
+        }
+        #clearImageButton:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        /* --- Input Area --- */
+        .input-area {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--light-bg);
+            gap: 10px; /* Space between elements */
+        }
+
+        /* Upload Button (Label) */
+        .upload-button {
+            padding: 8px; /* Adjust padding */
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 50%; /* Make it circular */
+            cursor: pointer;
+            font-size: 1.4em; /* Larger icon */
+            line-height: 1; /* Adjust for vertical centering */
+            transition: background-color 0.2s ease;
+            flex-shrink: 0; /* Prevent shrinking */
+            width: 40px; /* Explicit width */
+            height: 40px; /* Explicit height */
+            display: inline-flex; /* Align icon inside */
+            justify-content: center;
+            align-items: center;
+        }
+        .upload-button:hover {
+            background-color: #5a6268; /* Darker gray */
+        }
+
+        /* Text Input */
+        #userInput {
+            flex-grow: 1; /* Take available space */
+            padding: 10px 18px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px; /* Pill shape */
+            font-size: 1em;
+            background-color: var(--white-bg);
+            color: var(--text-color);
+            line-height: 1.4; /* Ensure consistent height */
+            resize: none; /* Prevent manual resize if it were a textarea */
+        }
+        #userInput:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+
+        /* Send Button */
+        #sendButton {
+            padding: 8px; /* Adjust padding */
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%; /* Circular */
+            cursor: pointer;
+            font-size: 1.4em; /* Larger icon */
+            transition: background-color 0.2s ease;
+            flex-shrink: 0; /* Prevent shrinking */
+            width: 40px; /* Explicit width */
+            height: 40px; /* Explicit height */
+            display: inline-flex; /* Align icon inside */
+            justify-content: center;
+            align-items: center;
+            line-height: 1;
+        }
+        #sendButton:disabled {
+            background-color: var(--button-disabled);
+            cursor: not-allowed;
+        }
+        #sendButton:hover:not(:disabled) {
+            background-color: var(--button-hover);
+        }
+
+        /* --- Loading Indicator --- */
+        #loadingIndicator {
+            padding: 10px 15px;
+            text-align: center;
+            font-style: italic;
+            color: var(--secondary-color);
+            background-color: var(--light-bg);
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="chatbot-container">
+        <h1>KERON AI </h1> <!-- NAME UPDATED HERE -->
+
+        <div id="chatbox">
+             <!-- NAME UPDATED IN INITIAL MESSAGE -->
+             <div class="message bot-message">Hello! I'm MATRK AI. Ask me anything, or upload an image and ask about it.</div>
+        </div>
+
+        <!-- Image Preview Area (Initially Hidden) -->
+        <div id="imagePreviewContainer" style="display: none;">
+             <img id="imagePreview" src="#" alt="Image Preview"/>
+             <p id="imageName"></p> <!-- Image name now next to preview -->
+             <button id="clearImageButton" title="Clear Image">×</button>
+        </div>
+
+        <div id="loadingIndicator" style="display: none;">
+            <i>MATRK AI is thinking...</i> <!-- NAME UPDATED HERE -->
+        </div>
+
+        <div class="input-area">
+            <!-- Hidden file input -->
+            <input type="file" id="imageUpload" accept="image/png, image/jpeg, image/webp, image/gif" style="display: none;">
+            <!-- Styled label triggering the file input -->
+            <label for="imageUpload" class="upload-button" title="Upload Image">🖼️</label>
+
+            <input type="text" id="userInput" placeholder="Type message or describe image...">
+            <button id="sendButton" title="Send Message">➤</button> <!-- Send icon -->
+        </div>
+    </div>
+
+    <script>
+        const chatbox = document.getElementById('chatbox');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const imageUpload = document.getElementById('imageUpload');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const clearImageButton = document.getElementById('clearImageButton');
+        const imageName = document.getElementById('imageName');
+
+        // --- Constants ---
+        const MODEL_NAME = "gemini-1.5-flash-latest";
+        const API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/";
+
+        // !!! ================================================== !!!
+        // !!!                  SECURITY WARNING                  !!!
+        // !!! ================================================== !!!
+        // !!! HARDCODING API KEYS IN CLIENT-SIDE CODE IS A       !!!
+        // !!! MAJOR SECURITY RISK! This key will be exposed      !!!
+        // !!! in the browser. For any real application, use a    !!!
+        // !!! backend server to handle API calls securely.       !!!
+        // !!! This is ONLY for basic local testing.              !!!
+        // !!! Replace with your actual key for testing ONLY.     !!!
+        // !!! DO NOT DEPLOY THIS CODE WITH A HARDCODED KEY!      !!!
+        // !!! ================================================== !!!
+        const API_KEY = "AIzaSyAYY-Yq4TRpwFypbhZIkoiVXZXaLvgt_yE"; // <-- !!! REPLACE WITH YOUR KEY FOR LOCAL TESTING ONLY !!!
+        // !!! ================================================== !!!
+
+        // --- State for uploaded image ---
+        let uploadedImageBase64 = null;
+        let uploadedImageMimeType = null;
+        const MAX_FILE_SIZE_MB = 4;
+        const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
+        // --- Function to add a message to the chatbox ---
+        function addMessage(message, sender, imageUrl = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', `${sender}-message`);
+
+            let contentHTML = '';
+            if (imageUrl && sender === 'user') {
+                contentHTML += `<img src="${imageUrl}" alt="Uploaded Preview">`;
+            }
+
+            const textSpan = document.createElement('span');
+            textSpan.textContent = message;
+            contentHTML += textSpan.outerHTML;
+
+            messageDiv.innerHTML = contentHTML;
+            chatbox.appendChild(messageDiv);
+            chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: 'smooth' });
+        }
+
+        // --- Function to show/hide loading indicator ---
+        function setLoading(isLoading) {
+            // NAME UPDATED IN LOADING INDICATOR TEXT
+            loadingIndicator.querySelector('i').textContent = isLoading ? 'MATRK AI is thinking...' : '';
+            loadingIndicator.style.display = isLoading ? 'block' : 'none';
+            sendButton.disabled = isLoading;
+            userInput.disabled = isLoading;
+            userInput.placeholder = isLoading ? "Waiting for response..." : "Type message or describe image...";
+            imageUpload.disabled = isLoading;
+
+            const uploadLabel = document.querySelector('.upload-button');
+             if (uploadLabel) {
+                 uploadLabel.style.cursor = isLoading ? 'not-allowed' : 'pointer';
+                 uploadLabel.style.opacity = isLoading ? 0.6 : 1;
+             }
+        }
+
+        // --- Function to check for name query ---
+        function checkForNameQuery(message) {
+            if (uploadedImageBase64) return false;
+
+            const lowerCaseMessage = message.toLowerCase().trim();
+            const namePatterns = [
+                "what is your name", "what's your name", "who are you",
+                "your name is", "tell me your name", "what are you called",
+                "do you have a name", "identify yourself"
+            ];
+            return namePatterns.some(pattern => lowerCaseMessage.includes(pattern));
+        }
+
+        // --- Function to handle image file selection ---
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                addMessage(`Error: "${file.name}" is not a valid image file type. Please upload PNG, JPG, GIF, or WEBP.`, 'error');
+                clearImageSelection();
+                return;
+            }
+
+            if (file.size > MAX_FILE_SIZE_BYTES) {
+                addMessage(`Error: Image "${file.name}" (${(file.size / 1024 / 1024).toFixed(2)}MB) exceeds the ${MAX_FILE_SIZE_MB}MB size limit.`, 'error');
+                clearImageSelection();
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const dataUrl = reader.result;
+                imagePreview.src = dataUrl;
+                imageName.textContent = file.name;
+                imagePreviewContainer.style.display = 'flex';
+
+                const base64String = dataUrl.split(',')[1];
+                const mimeType = dataUrl.substring(dataUrl.indexOf(':') + 1, dataUrl.indexOf(';'));
+
+                uploadedImageBase64 = base64String;
+                uploadedImageMimeType = mimeType;
+
+                console.log("Image loaded:", uploadedImageMimeType, `(${base64String.length} chars)`);
+                userInput.focus();
+                userInput.placeholder = "Describe the image or ask a question...";
+            };
+            reader.onerror = (error) => {
+                 console.error("FileReader error:", error);
+                 addMessage("Error reading the image file. Please try again.", 'error');
+                 clearImageSelection();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // --- Function to clear the selected image ---
+        function clearImageSelection() {
+            uploadedImageBase64 = null;
+            uploadedImageMimeType = null;
+            imageUpload.value = null;
+            imagePreview.src = '#';
+            imageName.textContent = '';
+            imagePreviewContainer.style.display = 'none';
+            userInput.placeholder = "Type message or describe image...";
+            console.log("Image selection cleared.");
+        }
+
+
+        // --- Function to call the Gemini API (Modified for Vision) ---
+        async function callGeminiAPI(message) {
+
+            const userMessageImageUrl = uploadedImageBase64 ? `data:${uploadedImageMimeType};base64,${uploadedImageBase64}` : null;
+            const userMessageText = message || (uploadedImageBase64 ? "(Image attached)" : "");
+            addMessage(userMessageText, 'user', userMessageImageUrl);
+
+            userInput.value = '';
+
+            if (!API_KEY || API_KEY === "YOUR_API_KEY_HERE") {
+                 addMessage("API Key is missing. Please add your API key in the script section for testing.", 'error');
+                 setLoading(false);
+                 return;
+            }
+
+            // --- Check for name query (only if no image) ---
+            if (!uploadedImageBase64 && checkForNameQuery(message)) {
+                setLoading(true);
+                await new Promise(resolve => setTimeout(resolve, 500));
+                 // NAME UPDATED IN RESPONSE
+                addMessage("My name is MATRK AI. How can I help you today?", 'bot');
+                setLoading(false);
+                clearImageSelection();
+                return;
+            }
+
+            setLoading(true);
+            const parts = [];
+            if (message && message.trim() !== "") {
+                parts.push({ "text": message });
+            }
+            if (uploadedImageBase64 && uploadedImageMimeType) {
+                parts.push({
+                    "inlineData": {
+                        "mimeType": uploadedImageMimeType,
+                        "data": uploadedImageBase64
+                    }
+                });
+            }
+            if (parts.length === 0) {
+                 addMessage("Please type a message or upload an image to send.", 'error');
+                 setLoading(false);
+                 clearImageSelection();
+                 return;
+            }
+
+            const requestBody = {
+                "contents": [{ "parts": parts }],
+                 "generationConfig": { "maxOutputTokens": 4096 },
+                 "safetySettings": [
+                    { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE" },
+                    { "category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE" },
+                    { "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE" },
+                    { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE" }
+                 ]
+            };
+
+            const apiUrl = `${API_BASE_URL}${MODEL_NAME}:generateContent?key=${API_KEY}`;
+            console.log("Calling Vision API:", apiUrl);
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                console.log("API Response Status:", response.status, response.statusText);
+                const responseData = await response.json();
+
+                if (!response.ok) {
+                    console.error("API Error Response Body:", responseData);
+                    let errorMessage = `API Error: ${response.status} ${response.statusText}.`;
+                    if (responseData?.error?.message) {
+                         errorMessage += ` ${responseData.error.message}`;
+                         if (responseData.error.message.includes("API key not valid")) {
+                             errorMessage = "API Error: The provided API Key is invalid or expired. Please check the key in the script.";
+                         }
+                    } else if (responseData.promptFeedback?.blockReason) {
+                         errorMessage = `Request blocked by API: ${responseData.promptFeedback.blockReason}. ${responseData.promptFeedback.blockReasonMessage || ''}`;
+                    } else {
+                        errorMessage += " Check the browser console for more details.";
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                console.log("API Success Response Body:", responseData);
+                let botResponse = "Sorry, I received an empty or unexpected response.";
+
+                if (responseData.promptFeedback && responseData.promptFeedback.blockReason) {
+                    botResponse = `Content blocked: ${responseData.promptFeedback.blockReason}. ${responseData.promptFeedback.blockReasonMessage || 'Due to safety settings.'}`;
+                    console.warn("Content blocked by API:", responseData.promptFeedback);
+                }
+                else if (responseData.candidates && responseData.candidates.length > 0) {
+                    const candidate = responseData.candidates[0];
+                    if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0 && candidate.content.parts[0].text) {
+                        botResponse = candidate.content.parts[0].text.trim();
+                    } else if (candidate.finishReason && candidate.finishReason !== 'STOP') {
+                         botResponse = `Response generation finished unexpectedly due to: ${candidate.finishReason}.`;
+                         console.warn("Response generation stopped:", candidate.finishReason, candidate.safetyRatings || '');
+                    } else {
+                        console.warn("API response candidate missing valid text content:", candidate);
+                         botResponse = "I received a response, but it didn't contain any text content.";
+                    }
+                } else {
+                    console.warn("Unexpected API response structure:", responseData);
+                    botResponse = "Received an unexpected response structure from the API. Check console.";
+                }
+
+                addMessage(botResponse, 'bot');
+
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                addMessage(`Error: ${error.message}`, 'error');
+            } finally {
+                setLoading(false);
+                clearImageSelection();
+                userInput.focus();
+            }
+        }
+
+        // --- Event Listeners ---
+        sendButton.addEventListener('click', () => {
+            const message = userInput.value.trim();
+            if (message || uploadedImageBase64) {
+                callGeminiAPI(message);
+            } else {
+                 userInput.focus();
+            }
+        });
+
+        userInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                 const message = userInput.value.trim();
+                 if (message || uploadedImageBase64) {
+                    sendButton.click();
+                 }
+            }
+        });
+
+        imageUpload.addEventListener('change', handleImageUpload);
+        clearImageButton.addEventListener('click', clearImageSelection);
+
+        // --- Initial Setup ---
+        userInput.focus();
+        clearImageSelection();
+
+        // NAME UPDATED IN API KEY CHECK MESSAGE
+        if (!API_KEY || API_KEY === "YOUR_API_KEY_HERE") {
+            addMessage("Welcome! Please remember to add your Gemini API Key in the script section of this HTML file to enable MATRK AI features.", 'bot');
+        }
+
+    </script>
+
+</body>
+</html>
