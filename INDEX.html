@@ -88,23 +88,28 @@
             font-size: 0.95rem;
         }
         .image-preview {
-            max-width: 120px; /* Smaller preview for phone screen */
-            max-height: 120px;
-            border-radius: 8px;
+            max-width: 80px; /* Even smaller preview for very small input */
+            max-height: 80px;
+            border-radius: 6px; /* Slightly less rounded */
             object-fit: cover;
-            margin-top: 10px;
+            margin-top: 5px; /* Reduced margin */
             border: 1px solid #cbd5e1; /* gray-300 */
         }
-        /* Custom file input styling */
+        /* Custom file input styling - Made much smaller */
         .custom-file-input {
-            border: 2px dashed #93c5fd; /* blue-300 */
-            background-color: #eff6ff; /* blue-50 */
-            padding: 15px; /* Reduced padding for smaller screen */
-            border-radius: 12px;
+            border: 1px dashed #a7d0ff; /* lighter blue-200 */
+            background-color: #f0f8ff; /* even lighter blue-50 */
+            padding: 8px 12px; /* Significantly reduced padding */
+            border-radius: 8px; /* Reduced border radius */
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
-            font-size: 0.9rem;
+            font-size: 0.75rem; /* Smaller font size */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 50px; /* Minimum height for small target */
         }
         .custom-file-input:hover {
             border-color: #60a5fa; /* blue-400 */
@@ -113,6 +118,17 @@
         .custom-file-input input[type="file"] {
             display: none;
         }
+        .custom-file-input p {
+            margin-bottom: 2px !important; /* Reduce margin between text lines */
+            line-height: 1.2;
+        }
+        .custom-file-input .text-blue-700 {
+            font-size: 0.85rem; /* Adjust icon text size */
+        }
+        .custom-file-input .text-gray-500 {
+            font-size: 0.65rem; /* Adjust helper text size */
+        }
+
 
         /* Adjustments for text areas and buttons inside the smaller screen */
         textarea {
@@ -135,6 +151,15 @@
         p {
             font-size: 0.95rem !important; /* Smaller text for phone screen */
         }
+        .next-question-prompt {
+            font-size: 0.85rem;
+            color: #4a5568; /* gray-700 */
+            text-align: center;
+            margin-top: 10px;
+            display: none; /* Hidden by default */
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+        }
 
     </style>
 </head>
@@ -143,33 +168,38 @@
         <div class="screen-container">
             <h1 class="text-3xl font-extrabold text-center text-gray-900 mb-4">AI Vision & Text Assistant</h1>
 
-            <!-- Input area for user prompt -->
-            <textarea
-                id="promptInput"
-                class="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-200 text-gray-800 resize-y min-h-[90px] shadow-sm"
-                placeholder="Describe what you see in the image, ask a question, or give a command (emojis welcome! ✨)..."
-                rows="5"
-            ></textarea>
-
-            <!-- Loading Spinner -->
-            <div id="loadingSpinner" class="loading-spinner"></div>
-
-            <!-- Response area -->
+            <!-- Response area - Remains at the top -->
             <div id="responseArea" class="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-md">
                 <h2 class="text-xl font-bold text-gray-800 mb-3">AI Response ✨</h2>
                 <p id="responseText" class="text-gray-700 leading-relaxed whitespace-pre-wrap text-base">Your AI-generated text will appear here. Try asking about an image!</p>
             </div>
 
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="loading-spinner"></div>
+
             <!-- Message Box for errors/info -->
             <div id="messageBox" class="message-box"></div>
 
-            <!-- Image Upload Area -->
+            <!-- New: Next Question Prompt -->
+            <div id="nextQuestionPrompt" class="next-question-prompt">
+                <p>Feel free to ask **Matrk AI** another question!</p>
+            </div>
+
+            <!-- Image Upload Area - Moved earlier to be before the main prompt input, and made small -->
             <label for="imageUpload" class="custom-file-input">
-                <p class="text-blue-700 font-semibold text-base mb-1">Drag & Drop or Click to Upload Image 🖼️</p>
-                <p class="text-gray-500 text-xs">PNG, JPG, JPEG allowed. Max 5MB.</p>
+                <p class="text-blue-700 font-semibold mb-0">🖼️ Upload Image</p>
+                <p class="text-gray-500 mt-0">(Max 5MB)</p>
                 <input type="file" id="imageUpload" accept="image/png, image/jpeg, image/jpg">
-                <img id="imagePreview" src="#" alt="Image Preview" class="image-preview mx-auto hidden">
+                <img id="imagePreview" src="#" alt="Image Preview" class="image-preview hidden">
             </label>
+
+            <!-- Input area for user prompt - MOVED TO BE BELOW THE ANSWERS -->
+            <textarea
+                id="promptInput"
+                class="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-200 text-gray-800 resize-y min-h-[90px] shadow-sm"
+                placeholder="Type your next question or command here..."
+                rows="5"
+            ></textarea>
 
             <!-- Generate button -->
             <button
@@ -193,6 +223,7 @@
             const responseText = document.getElementById('responseText');
             const loadingSpinner = document.getElementById('loadingSpinner');
             const messageBox = document.getElementById('messageBox');
+            const nextQuestionPrompt = document.getElementById('nextQuestionPrompt');
 
             let base64ImageData = null; // To store the base64 string of the uploaded image
 
@@ -214,6 +245,27 @@
             function hideMessageBox() {
                 messageBox.style.display = 'none';
             }
+
+            /**
+             * Shows the "Next Question Prompt" with a fade-in effect.
+             */
+            function showNextQuestionPrompt() {
+                nextQuestionPrompt.style.display = 'block';
+                setTimeout(() => {
+                    nextQuestionPrompt.style.opacity = '1';
+                }, 10); // Small delay for transition to work
+            }
+
+            /**
+             * Hides the "Next Question Prompt" with a fade-out effect.
+             */
+            function hideNextQuestionPrompt() {
+                nextQuestionPrompt.style.opacity = '0';
+                setTimeout(() => {
+                    nextQuestionPrompt.style.display = 'none';
+                }, 300); // Match transition duration
+            }
+
 
             // Event listener for image file input change
             imageUpload.addEventListener('change', (event) => {
@@ -245,6 +297,7 @@
                     base64ImageData = null;
                 }
                 hideMessageBox(); // Hide messages when a new file is selected
+                hideNextQuestionPrompt(); // Hide prompt if new input detected
             });
 
             // Event listener for drag and drop
@@ -276,6 +329,7 @@
                     event.preventDefault(); // Prevent the default newline behavior
                     generateButton.click(); // Programmatically click the generate button
                 }
+                hideNextQuestionPrompt(); // Hide prompt when user starts typing
             });
 
             // Event listener for the generate button
@@ -285,6 +339,7 @@
                 // Clear previous response and message
                 responseText.textContent = 'Generating AI response...';
                 hideMessageBox();
+                hideNextQuestionPrompt(); // Hide prompt when a new generation starts
 
                 if (!userPrompt && !base64ImageData) {
                     showMessage('Please enter a prompt or upload an image before generating.', false);
@@ -365,6 +420,10 @@
                     loadingSpinner.style.display = 'none';
                     generateButton.disabled = false;
                     generateButton.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                    // Show the "Next Question Prompt" after a response is generated
+                    showNextQuestionPrompt();
+                    promptInput.value = ''; // Clear the input field after generation
                 }
             });
         });
