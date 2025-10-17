@@ -3,278 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrk AI</title>
+    <title>Matrk AI Real-time Chat Interface (Non-Persistent)</title>
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
-        /* Custom styles for Inter font and general body styling */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #e2e8f0; /* Soft blue-gray background */
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background-color: #f7f9fc; /* Light background */
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-            overflow: auto; /* Allow scrolling if content overflows in a smaller frame */
-        }
-
-        /* Phone Frame Styling */
-        .phone-frame {
-            width: 375px; /* Standard iPhone X/XS/11 Pro width */
-            height: 812px; /* Standard iPhone X/XS/11 Pro height */
-            background-color: #1a202c; /* Dark charcoal for phone casing */
-            border-radius: 40px; /* Highly rounded corners for phone */
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), /* Outer shadow for depth */
-                        inset 0 0 0 10px #2d3748; /* Inner border/bezel effect */
-            padding: 20px; /* Padding for the bezel */
+            padding: 0;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
+            justify-content: center;
+            align-items: flex-start;
         }
 
-        /* Simulated notch (optional, for visual effect) */
-        .phone-frame::before {
-            content: '';
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 140px;
-            height: 25px;
-            background-color: #000;
-            border-radius: 0 0 15px 15px;
-            z-index: 10;
-        }
-
-        /* Inner container now acts as the screen */
-        .screen-container {
+        .chat-layout {
             width: 100%;
-            height: 100%;
-            background-color: #ffffff;
-            border-radius: 30px; /* Slightly less rounded than outer frame */
-            overflow-y: auto; /* Enable scrolling within the screen */
-            padding: 25px; /* Padding inside the screen area */
+            max-width: 900px;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05); /* Soft inner shadow for screen */
+            padding: 20px 0;
         }
 
+        /* --- Chat Container Styling --- */
+        #chatContainer {
+            flex-grow = 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            scroll-behavior: smooth;
+        }
+
+        /* Message Bubble - Base */
+        .message-bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            margin-bottom: 15px;
+            border-radius: 18px;
+            line-height: 1.5;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            word-wrap: break-word;
+        }
+
+        /* User Message - Right Side (Blue) */
+        .user-message {
+            margin-left: auto;
+            background-color: #3b82f6; /* Blue-600 */
+            color: white;
+            border-bottom-right-radius: 4px; /* Pointed corner */
+        }
+
+        /* AI Message - Left Side (Light Gray) */
+        .ai-message {
+            margin-right: auto;
+            background-color: #eef2ff; /* Indigo-50 */
+            color: #1f2937; /* Gray-800 */
+            border: 1px solid #d1d5db;
+            border-bottom-left-radius: 4px; /* Pointed corner */
+        }
+
+        /* AI-specific styling within bubbles for markdown content */
+        .ai-message h3 {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 700;
+            margin-top: 10px;
+            margin-bottom: 8px;
+            color: #1d4ed8; /* Blue-700 */
+            padding-bottom: 4px;
+            border-bottom: 1px dashed #bfdbfe;
+        }
+        .ai-message ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .ai-message p {
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        /* Loading Spinner */
         .loading-spinner {
-            border: 4px solid #f3f3f3; /* Light grey */
-            border-top: 4px solid #3b82f6; /* Tailwind blue-500 */
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
             border-radius: 50%;
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
             animation: spin 1s linear infinite;
-            display: none; /* Hidden by default */
-            margin: 0 auto;
+            display: none;
+            margin-left: 10px;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .message-box {
-            background-color: #ffe0b2; /* Light orange for warnings/errors */
-            color: #e65100; /* Darker orange text */
-            padding: 15px;
-            border-radius: 12px;
-            margin-top: 15px;
-            display: none; /* Hidden by default */
-            font-size: 0.95rem;
-        }
-        .image-preview {
-            max-width: 80px; /* Even smaller preview for very small input */
-            max-height: 80px;
-            border-radius: 6px; /* Slightly less rounded */
-            object-fit: cover;
-            margin-top: 5px; /* Reduced margin */
-            border: 1px solid #cbd5e1; /* gray-300 */
-        }
-        /* Custom file input styling - Made much smaller */
+
+        /* Custom file input styling */
         .custom-file-input {
-            border: 1px dashed #a7d0ff; /* lighter blue-200 */
-            background-color: #f0f8ff; /* even lighter blue-50 */
-            padding: 8px 12px; /* Significantly reduced padding */
-            border-radius: 8px; /* Reduced border radius */
-            text-align: center;
+            border: 1px dashed #93c5fd;
+            background-color: #f7f9fc;
+            padding: 10px;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
-            font-size: 0.75rem; /* Smaller font size */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 50px; /* Minimum height for small target */
+            min-height: 60px;
         }
         .custom-file-input:hover {
-            border-color: #60a5fa; /* blue-400 */
-            background-color: #e0f2fe; /* blue-100 */
+            border-color: #3b82f6;
+            background-color: #eff6ff;
         }
         .custom-file-input input[type="file"] {
             display: none;
         }
-        .custom-file-input p {
-            margin-bottom: 2px !important; /* Reduce margin between text lines */
-            line-height: 1.2;
+        .image-preview {
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 6px;
+            object-fit: cover;
+            margin-top: 8px;
+            border: 2px solid #cbd5e1;
         }
-        .custom-file-input .text-blue-700 {
-            font-size: 0.85rem; /* Adjust icon text size */
-        }
-        .custom-file-input .text-gray-500 {
-            font-size: 0.65rem; /* Adjust helper text size */
-        }
-
-
-        /* Adjustments for text areas and buttons inside the smaller screen */
-        textarea {
-            padding: 12px !important; /* Adjust padding */
-            min-height: 90px !important; /* Adjust min-height */
-            font-size: 0.95rem;
-        }
-        button {
-            padding: 12px 24px !important; /* Adjust padding */
-            font-size: 1rem;
-        }
-        h1 {
-            font-size: 2rem !important; /* Smaller title for phone screen */
-            margin-bottom: 20px !important;
-        }
-        h2 {
-            font-size: 1.5rem !important; /* Smaller heading for phone screen */
-            margin-bottom: 12px !important;
-        }
-        p {
-            font-size: 0.95rem !important; /* Smaller text for phone screen */
-        }
-        .next-question-prompt {
-            font-size: 0.85rem;
-            color: #4a5568; /* gray-700 */
-            text-align: center;
-            margin-top: 10px;
-            display: none; /* Hidden by default */
-            transition: opacity 0.3s ease-in-out;
-            opacity: 0;
-        }
-
     </style>
 </head>
 <body>
-    <div class="phone-frame">
-        <div class="screen-container">
-            <h1 class="text-3xl font-extrabold text-center text-gray-900 mb-4">MATRK AI </h1>
+    <div class="chat-layout">
+        <!-- Header -->
+        <h1 class="text-3xl font-black text-center text-gray-900 mb-4">
+            <span class="text-blue-600">M</span>ATRK <span class="text-blue-600">AI</span> Real-time Chat
+        </h1>
 
-            <!-- Response area -->
-            <div id="responseArea" class="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-md">
-                <h2 class="text-xl font-bold text-gray-800 mb-3">AI Response ✨</h2>
-                <p id="responseText" class="text-gray-700 leading-relaxed whitespace-pre-wrap text-base">Your AI-generated text will appear here. Try asking about an image!</p>
-            </div>
+        <!-- Chat Container (Display Area) -->
+        <div id="chatContainer">
+            <!-- Initial welcome message added via JS -->
+        </div>
 
-            <!-- Loading Spinner -->
-            <div id="loadingSpinner" class="loading-spinner"></div>
+        <!-- Message Box for errors/info -->
+        <div id="messageBox" class="message-box rounded-xl p-3 text-sm hidden mb-4"></div>
 
-            <!-- Message Box for errors/info -->
-            <div id="messageBox" class="message-box"></div>
-
-            <!-- New: Next Question Prompt -->
-            <div id="nextQuestionPrompt" class="next-question-prompt">
-                <p>Feel free to ask **Matrk AI** another question!</p>
-            </div>
-
-            <!-- Image Upload Area - Remains above the prompt input and very small -->
+        <!-- Inputs Wrapper -->
+        <div class="space-y-3 p-4 bg-white rounded-xl shadow-lg border border-gray-100">
+            
+            <!-- Image Upload Area -->
             <label for="imageUpload" class="custom-file-input">
-                <p class="text-blue-700 font-semibold mb-0">🖼️ Upload Image</p>
-                <p class="text-gray-500 mt-0">(Max 5MB)</p>
+                <p class="text-blue-700 font-semibold text-sm">🖼️ Upload Image for Analysis</p>
                 <input type="file" id="imageUpload" accept="image/png, image/jpeg, image/jpg">
                 <img id="imagePreview" src="#" alt="Image Preview" class="image-preview hidden">
             </label>
 
-            <!-- Input area for user prompt - NOW BELOW THE ANSWERS AND IMAGE UPLOAD -->
-            <textarea
-                id="promptInput"
-                class="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-200 text-gray-800 resize-y min-h-[90px] shadow-sm"
-                placeholder="Type your next question or command here..."
-                rows="5"
-            ></textarea>
+            <!-- Input area for user prompt -->
+            <div class="flex items-end space-x-2">
+                <textarea
+                    id="promptInput"
+                    class="flex-grow p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800 resize-none max-h-40 shadow-sm text-base"
+                    placeholder="Type your message here..."
+                    rows="1"
+                    style="min-height: 44px;"
+                ></textarea>
 
-            <!-- Generate button -->
-            <button
-                id="generateButton"
-                class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-offset-2 flex items-center justify-center gap-2"
-            >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 11.17l-.803-.803A4.5 4.5 0 018 7.5a4.5 4.5 0 014-4.472A4.5 4.5 0 0116 7.5c0 1.282-.576 2.454-1.588 3.26L12 11.17zm3.172 1.306l.854.854A3.5 3.5 0 0019.5 15a3.5 3.5 0 003.5-3.5c0-.853-.339-1.637-.89-2.22l-.854-.854m-14.735 4.39l-.854.854A3.5 3.5 0 014.5 15a3.5 3.5 0 01-3.5-3.5c0-.853.339-1.637.89-2.22l.854-.854"></path></svg>
-                Generate AI Response
-            </button>
-
-
+                <!-- Generate button -->
+                <button
+                    id="generateButton"
+                    class="w-32 h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-blue-300 flex items-center justify-center gap-1 text-sm"
+                >
+                    Send
+                    <div id="loadingSpinner" class="loading-spinner"></div>
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
+        const GEMINI_API_KEY = "AIzaSyA6mXjMO8YceJof8v3-mviE7FqbSoJ-xpw"; // Using empty string to leverage Canvas environment's auto-key injection
+        const GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025";
+        const SYSTEM_PROMPT = `You are Matrk AI, a highly professional and advanced generative assistant, designed to process text and images and deliver well-organized, informative responses suitable for a professional setting. Format your responses using markdown: use '###' for major sections, '- ' or '* ' for standard bullet lists, and tables for data presentation.`;
+
+        // UI Elements
+        const promptInput = document.getElementById('promptInput');
+        const imageUpload = document.getElementById('imageUpload');
+        const imagePreview = document.getElementById('imagePreview');
+        const generateButton = document.getElementById('generateButton');
+        const chatContainer = document.getElementById('chatContainer');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const messageBox = document.getElementById('messageBox');
+
+        let base64ImageData = null;
+        let chatHistory = []; // Local array to hold the current session's chat history (with timestamp)
+
+        // --- Utility Functions ---
+
+        /**
+         * Simple Markdown to HTML converter for chat bubbles.
+         */
+        function markdownToHtml(markdown) {
+            let html = markdown.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+            
+            // 1. Headings (H3)
+            html = html.replace(/^###\s+(.*)$/gm, '<h3>$1</h3>');
+            html = html.replace(/^##\s+(.*)$/gm, '<h3>$1</h3>');
+
+            // 2. Bold text
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // 3. Lists
+            const listPattern = /(\s*[-*]\s+.*(\n\s*[-*]\s+.*)*)/g;
+            html = html.replace(listPattern, (match) => {
+                const listItems = match.trim().split('\n').map(item => {
+                    return '<li>' + item.replace(/^[\s*-]+\s*/, '') + '</li>';
+                }).join('');
+                return `<ul>${listItems}</ul>`;
+            });
+            
+            // 4. Paragraphs/Line Breaks - run last
+            html = html.split('\n\n').map(p => {
+                if (p.trim() === '' || p.startsWith('<h3') || p.startsWith('<ul') || p.startsWith('<hr')) {
+                    return p;
+                }
+                p = p.replace(/\n/g, '<br>');
+                return `<p>${p}</p>`;
+            }).join('');
+
+            return html;
+        }
+
+        function showMessage(message, isError = false) {
+            messageBox.innerHTML = message;
+            messageBox.style.display = 'block';
+            messageBox.style.backgroundColor = isError ? '#fee2e2' : '#dbeafe';
+            messageBox.style.color = isError ? '#991b1b' : '#1e40af';
+        }
+
+        function hideMessageBox() {
+            messageBox.style.display = 'none';
+        }
+
+        function toggleLoading(isLoading) {
+            loadingSpinner.style.display = isLoading ? 'block' : 'none';
+            generateButton.disabled = isLoading;
+            generateButton.classList.toggle('opacity-50', isLoading);
+            generateButton.classList.toggle('cursor-not-allowed', isLoading);
+        }
+
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // --- Chat Rendering Functions ---
+        
+        function renderMessage(msg) {
+            const isUser = msg.role === 'user';
+            const bubble = document.createElement('div');
+            bubble.className = `message-bubble ${isUser ? 'user-message' : 'ai-message'} ${isUser ? 'ml-auto' : 'mr-auto'}`;
+
+            const time = new Date(msg.timestamp);
+            const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            // If the user message had an image, display it
+            if (isUser && msg.parts.some(p => p.inlineData)) {
+                const imageData = msg.parts.find(p => p.inlineData).inlineData.data;
+                const img = document.createElement('img');
+                img.src = `data:image/png;base64,${imageData}`;
+                img.className = 'w-48 h-auto rounded-lg mb-2 shadow-md border-2 border-white';
+                bubble.appendChild(img);
+            }
+
+            // Get text content
+            const textContent = msg.parts.find(p => p.text)?.text || '';
+
+            // Render text content
+            const contentDiv = document.createElement('div');
+            contentDiv.innerHTML = isUser ? textContent : markdownToHtml(textContent);
+            bubble.appendChild(contentDiv);
+            
+            // Add time label
+            const timeSpan = document.createElement('span');
+            timeSpan.className = `block text-right ${isUser ? 'text-blue-200' : 'text-gray-400'} text-[10px] mt-1`;
+            timeSpan.textContent = timeString;
+            bubble.appendChild(timeSpan);
+
+            chatContainer.appendChild(bubble);
+        }
+
+        function showInitialWelcome() {
+            const welcomeMessage = {
+                role: 'model',
+                parts: [{ text: "### Welcome to Matrk AI Real-time Chat\n\nI'm your professional assistant. This chat is **not saved** (non-persistent). Enter your prompt or upload an image to start your analysis!" }],
+                timestamp: new Date()
+            };
+            renderMessage(welcomeMessage);
+        }
+        
+        // --- AI API Call Function with Retries ---
+
+        async function fetchAIResponse(currentChatHistory) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+            
+            // FIX: Sanitize history by removing the local 'timestamp' property
+            const apiContents = currentChatHistory.map(message => ({
+                role: message.role,
+                parts: message.parts
+            }));
+
+            const payload = { 
+                contents: apiContents, // Send the sanitized session history
+                systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] }
+            };
+
+            const maxRetries = 3;
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        if (response.status >= 500 && i < maxRetries - 1) {
+                            await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+                            continue;
+                        }
+                        // Check for 400 errors specifically to throw a more readable message
+                        let errorMessage = errorData.error?.message || 'Unknown API error';
+                        if (response.status === 400 && errorMessage.includes('Invalid JSON payload')) {
+                             errorMessage = "Invalid payload (likely history formatting issue). Check console for details.";
+                        }
+                        throw new Error(`API Error: ${response.status} - ${errorMessage}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    const candidate = result.candidates?.[0];
+                    if (candidate && candidate.content?.parts?.[0]?.text) {
+                        return candidate.content.parts[0].text;
+                    } else {
+                        throw new Error('AI response was empty or blocked.');
+                    }
+                } catch (error) {
+                    if (i === maxRetries - 1) {
+                        throw error;
+                    }
+                    console.log(`Retrying API call (attempt ${i + 2})...`);
+                }
+            }
+        }
+
+
+        // --- Event Listeners and Main Logic ---
+
         document.addEventListener('DOMContentLoaded', () => {
-            const promptInput = document.getElementById('promptInput');
-            const imageUpload = document.getElementById('imageUpload');
-            const imagePreview = document.getElementById('imagePreview');
-            const generateButton = document.getElementById('generateButton');
-            const responseText = document.getElementById('responseText');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            const messageBox = document.getElementById('messageBox');
-            const nextQuestionPrompt = document.getElementById('nextQuestionPrompt');
+            showInitialWelcome();
 
-            let base64ImageData = null; // To store the base64 string of the uploaded image
-
-            /**
-             * Displays a message in the message box.
-             * @param {string} message - The message to display.
-             * @param {boolean} isError - True if it's an error message, false otherwise.
-             */
-            function showMessage(message, isError = false) {
-                messageBox.textContent = message;
-                messageBox.style.display = 'block';
-                messageBox.style.backgroundColor = isError ? '#ffebee' : '#e3f2fd'; /* Red for error, light blue for info */
-                messageBox.style.color = isError ? '#c62828' : '#1565c0'; /* Dark red for error, dark blue for info */
-            }
-
-            /**
-             * Hides the message box.
-             */
-            function hideMessageBox() {
-                messageBox.style.display = 'none';
-            }
-
-            /**
-             * Shows the "Next Question Prompt" with a fade-in effect.
-             */
-            function showNextQuestionPrompt() {
-                nextQuestionPrompt.style.display = 'block';
-                setTimeout(() => {
-                    nextQuestionPrompt.style.opacity = '1';
-                }, 10); // Small delay for transition to work
-            }
-
-            /**
-             * Hides the "Next Question Prompt" with a fade-out effect.
-             */
-            function hideNextQuestionPrompt() {
-                nextQuestionPrompt.style.opacity = '0';
-                setTimeout(() => {
-                    nextQuestionPrompt.style.display = 'none';
-                }, 300); // Match transition duration
-            }
-
-
-            // Event listener for image file input change
+            // Image Upload Logic
             imageUpload.addEventListener('change', (event) => {
                 const file = event.target.files[0];
                 if (file) {
-                    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                    if (file.size > 5 * 1024 * 1024) {
                         showMessage('Image size exceeds 5MB limit. Please choose a smaller image.', true);
                         imagePreview.classList.add('hidden');
-                        imageUpload.value = ''; // Clear the input
+                        imageUpload.value = '';
                         base64ImageData = null;
                         return;
                     }
@@ -283,11 +381,11 @@
                     reader.onload = (e) => {
                         imagePreview.src = e.target.result;
                         imagePreview.classList.remove('hidden');
-                        // Extract base64 part (remove data:image/...;base64,)
-                        base64ImageData = e.target.result.split(',')[1];
+                        // Store the base64 part only
+                        base64ImageData = e.target.result.split(',')[1]; 
                     };
                     reader.onerror = () => {
-                        showMessage('Failed to read image file. Please try again.', true);
+                        showMessage('Failed to read image file.', true);
                         imagePreview.classList.add('hidden');
                         base64ImageData = null;
                     };
@@ -296,139 +394,101 @@
                     imagePreview.classList.add('hidden');
                     base64ImageData = null;
                 }
-                hideMessageBox(); // Hide messages when a new file is selected
-                hideNextQuestionPrompt(); // Hide prompt if new input detected
+                hideMessageBox();
             });
 
-            // Event listener for drag and drop
+            // Drag and drop listeners (kept for convenience)
             const customFileInput = document.querySelector('.custom-file-input');
-            customFileInput.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                customFileInput.classList.add('border-blue-500', 'bg-blue-100');
+            ['dragover', 'dragleave', 'drop'].forEach(eventName => {
+                customFileInput.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
             });
-
-            customFileInput.addEventListener('dragleave', () => {
-                customFileInput.classList.remove('border-blue-500', 'bg-blue-100');
-            });
-
+            customFileInput.addEventListener('dragover', () => customFileInput.classList.add('ring-4', 'ring-blue-200'));
+            customFileInput.addEventListener('dragleave', () => customFileInput.classList.remove('ring-4', 'ring-blue-200'));
             customFileInput.addEventListener('drop', (e) => {
-                e.preventDefault();
-                customFileInput.classList.remove('border-blue-500', 'bg-blue-100');
+                customFileInput.classList.remove('ring-4', 'ring-blue-200');
                 const files = e.dataTransfer.files;
                 if (files.length > 0) {
-                    imageUpload.files = files; // Assign dropped files to the input
-                    imageUpload.dispatchEvent(new Event('change')); // Trigger change event
+                    imageUpload.files = files;
+                    imageUpload.dispatchEvent(new Event('change'));
                 }
             });
 
-            // Event listener for Enter key press on prompt input
+            // Enter key press listener
             promptInput.addEventListener('keydown', (event) => {
-                // Check if the Enter key was pressed AND the Shift key was NOT pressed
-                // This allows Shift+Enter for new lines within the textarea
                 if (event.key === 'Enter' && !event.shiftKey) {
-                    event.preventDefault(); // Prevent the default newline behavior
-                    generateButton.click(); // Programmatically click the generate button
+                    event.preventDefault();
+                    generateButton.click();
                 }
-                hideNextQuestionPrompt(); // Hide prompt when user starts typing
             });
 
-            // Event listener for the generate button
+            // Button click handler
             generateButton.addEventListener('click', async () => {
-                const userPrompt = promptInput.value.trim(); // Get and trim the user input
+                const userPrompt = promptInput.value.trim();
+                const imageSent = base64ImageData;
 
-                // Clear previous response and message
-                responseText.textContent = 'Generating AI response...';
+                if (!userPrompt && !imageSent) {
+                    showMessage('Please enter a message or upload an image to send.', false);
+                    return;
+                }
+
+                toggleLoading(true);
                 hideMessageBox();
-                hideNextQuestionPrompt(); // Hide prompt when a new generation starts
 
-                if (!userPrompt && !base64ImageData) {
-                    showMessage('Please enter a prompt or upload an image before generating.', false);
-                    responseText.textContent = 'Your AI-generated text will appear here.';
-                    return; // Exit if both prompt and image are empty
-                }
-
-                // Show loading spinner and disable button
-                loadingSpinner.style.display = 'block';
-                generateButton.disabled = true;
-                generateButton.classList.add('opacity-50', 'cursor-not-allowed');
-
-                try {
-                    // Define the AI's identity and creator information as a system instruction or context
-                    const aiIdentityContext = `You are Matrk AI, created by Koyamu Martin Kigozi. ` +
-                                             `You can contact him at 0708825340 or via email at koyamumartinkigozi@gmail.com, ` +
-                                             `from Bishop Dunstan Nsubuga Memorial Secondary School Kalangala.`;
-
-                    // Prepare the payload for the Gemini API call
-                    let chatHistory = [];
-
-                    // Always include the AI's identity as the first part of the conversation for context
-                    // This way the AI "knows" who it is when asked.
-                    chatHistory.push({ role: "user", parts: [{ text: aiIdentityContext + "\n\n" + userPrompt }] });
-
-                    // Add image part if image data exists
-                    if (base64ImageData) {
-                        chatHistory[0].parts.push({
-                            inlineData: {
-                                mimeType: "image/png", // Assuming PNG, but could be dynamic based on file type
-                                data: base64ImageData
-                            }
-                        });
-                    }
-
-                    const payload = { contents: chatHistory };
-
-                    // IMPORTANT: Leave apiKey as an empty string. The Canvas environment
-                    // will automatically provide the API key at runtime for this model.
-                    const apiKey = "AIzaSyA6mXjMO8YceJof8v3-mviE7FqbSoJ-xpw";
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-                    // Make the fetch call to the Gemini API
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                // 1. Construct and Add User Message to local history and DOM (including timestamp for local rendering)
+                let userParts = [{ text: userPrompt }];
+                if (imageSent) {
+                    userParts.push({
+                        inlineData: {
+                            mimeType: "image/png",
+                            data: imageSent
+                        }
                     });
-
-                    // Check if the response was successful (status code 2xx)
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(`API Error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
-                    }
-
-                    // Parse the JSON response
-                    const result = await response.json();
-
-                    // Extract the generated text from the response
-                    if (result.candidates && result.candidates.length > 0 &&
-                        result.candidates[0].content && result.candidates[0].content.parts &&
-                        result.candidates[0].content.parts.length > 0) {
-                        const text = result.candidates[0].content.parts[0].text;
-                        responseText.textContent = text; // Display the AI's response
-                    } else {
-                        // Handle cases where the response structure is unexpected or content is missing
-                        showMessage('Received an unexpected response from the AI. Please try again.', true);
-                        responseText.textContent = 'No response generated.';
-                    }
-
-                } catch (error) {
-                    // Catch and display any errors during the API call
-                    console.error('Error generating AI response:', error);
-                    showMessage(`Failed to generate AI response: ${error.message}`, true);
-                    responseText.textContent = 'Error: Could not generate response.';
-                } finally {
-                    // Hide loading spinner and re-enable button regardless of success or failure
-                    loadingSpinner.style.display = 'none';
-                    generateButton.disabled = false;
-                    generateButton.classList.remove('opacity-50', 'cursor-not-allowed');
-
-                    // Show the "Next Question Prompt" after a response is generated
-                    showNextQuestionPrompt();
-                    promptInput.value = ''; // Clear the input field after generation
                 }
+                const userMessage = { 
+                    role: 'user', 
+                    parts: userParts, 
+                    timestamp: new Date() 
+                };
+                
+                chatHistory.push(userMessage);
+                renderMessage(userMessage);
+                scrollToBottom();
+
+                // Clear input fields and image preview immediately after sending
+                promptInput.value = '';
+                imageUpload.value = '';
+                imagePreview.classList.add('hidden');
+                base64ImageData = null;
+
+                // 2. Fetch AI Response (sending the full chat history)
+                let aiResponseText = "I encountered an error retrieving a professional response.";
+                try {
+                    aiResponseText = await fetchAIResponse(chatHistory);
+                    
+                } catch (error) {
+                    console.error('AI Generation Error:', error);
+                    // Show a cleaner error message in the UI
+                    showMessage(`AI processing failed: ${error.message.substring(0, 100)}...`, true);
+                    aiResponseText = `### Error in AI Processing\n\nI was unable to generate a response due to an internal error. Please try again. (Details: ${error.message})`;
+                }
+
+                // 3. Add AI Response to local history and DOM
+                const aiMessage = {
+                    role: 'model',
+                    parts: [{ text: aiResponseText }],
+                    timestamp: new Date()
+                };
+                chatHistory.push(aiMessage);
+                renderMessage(aiMessage);
+                scrollToBottom();
+
+                // Final cleanup
+                toggleLoading(false);
             });
         });
     </script>
 </body>
 </html>
-
-
