@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrk AI Real-time Chat Interface (Non-Persistent)</title>
+    <title>Matrk AI Real-time Chat Interface</title>
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -11,7 +11,7 @@
         /* Define the font and general page layout */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f7f9fc; /* Light background */
+            background-color: #f0f4f8; /* Very light blue-gray background */
             min-height: 100vh;
             margin: 0;
             padding: 0;
@@ -30,6 +30,7 @@
             padding: 20px 0;
             /* Space reserved for the fixed input area at the bottom */
             padding-bottom: 130px; 
+            box-sizing: border-box;
         }
 
         /* --- Fixed Input Area Styling --- */
@@ -39,10 +40,10 @@
             left: 0;
             right: 0;
             z-index: 1000;
-            background-color: #f7f9fc; /* Background to cover content */
+            background-color: #f0f4f8; /* Match body background */
             padding-top: 10px;
-            border-top: 1px solid #e5e7eb;
-            box-shadow: 0 -5px 15px -3px rgba(0, 0, 0, 0.05); /* Subtle shadow above input */
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -5px 15px -3px rgba(0, 0, 0, 0.08); /* Subtle shadow above input */
         }
         .input-content-wrapper {
             /* This centers the content and provides horizontal padding */
@@ -54,13 +55,13 @@
         .input-bar-flex {
              /* Wrapper for the textarea/buttons to apply shadow/border once */
              background-color: #ffffff;
-             border-radius: 12px;
-             border: 1px solid #f3f4f6;
-             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+             border-radius: 16px;
+             border: 1px solid #d9e2ee;
+             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
              display: flex;
              align-items: flex-end; /* Align elements to the bottom line */
              gap: 8px;
-             padding: 8px 12px;
+             padding: 10px 15px;
         }
 
 
@@ -71,50 +72,51 @@
             padding: 20px;
             background-color: #ffffff;
             border-radius: 16px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             scroll-behavior: smooth;
             max-height: 100%; /* Allows it to fill the remaining space */
+            border: 1px solid #e2e8f0;
         }
         
-        /* Message Bubble and Markdown Styles (Same as before) */
+        /* Message Bubble and Markdown Styles */
         .message-bubble {
-            max-width: 80%;
-            padding: 12px 16px;
+            max-width: 85%;
+            padding: 14px 18px;
             margin-bottom: 15px;
-            border-radius: 18px;
-            line-height: 1.5;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            line-height: 1.6;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             word-wrap: break-word;
         }
 
         .user-message {
             margin-left: auto;
-            background-color: #3b82f6;
+            background-color: #3b82f6; /* Blue-600 */
             color: white;
-            border-top-right-radius: 4px; 
-            border-bottom-right-radius: 18px;
-            border-top-left-radius: 18px;
-            border-bottom-left-radius: 18px;
+            border-top-right-radius: 6px; 
+            border-bottom-right-radius: 20px;
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
         }
 
         .ai-message {
             margin-right: auto;
-            background-color: #eef2ff;
+            background-color: #eef2ff; /* Indigo-50 */
             color: #1f2937;
-            border: 1px solid #d1d5db;
-            border-top-left-radius: 4px; 
-            border-bottom-left-radius: 18px;
-            border-top-right-radius: 18px;
-            border-bottom-right-radius: 18px;
+            border: 1px solid #c7d2fe; /* Indigo-300 light border */
+            border-top-left-radius: 6px; 
+            border-bottom-left-radius: 20px;
+            border-top-right-radius: 20px;
+            border-bottom-right-radius: 20px;
         }
         .ai-message h3 {
-            font-size: 1.125rem;
+            font-size: 1.25rem;
             font-weight: 700;
             margin-top: 10px;
             margin-bottom: 8px;
             color: #1d4ed8;
             padding-bottom: 4px;
-            border-bottom: 1px dashed #bfdbfe;
+            border-bottom: 1px dashed #a5b4fc;
         }
         .ai-message ul {
             list-style-type: disc;
@@ -125,6 +127,12 @@
         .ai-message p {
             margin-top: 8px;
             margin-bottom: 8px;
+        }
+        
+        /* Markdown Code Block Styling */
+        .ai-message pre {
+             white-space: pre-wrap;
+             word-break: break-all;
         }
 
         /* Loading Spinner */
@@ -148,30 +156,30 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 40px; 
-            height: 40px;
-            min-width: 40px;
-            border-radius: 10px;
+            width: 44px; /* Slightly larger target */
+            height: 44px;
+            min-width: 44px;
+            border-radius: 12px;
             cursor: pointer;
-            background-color: #e5e7eb; /* Gray-200 */
+            background-color: #f1f5f9; /* Slate-100 */
             color: #3b82f6; /* Blue-600 */
             transition: background-color 0.2s;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             line-height: 1;
         }
         .compact-file-label:hover {
-            background-color: #d1d5db; /* Gray-300 */
+            background-color: #e2e8f0; /* Slate-200 */
         }
         .image-preview {
             /* Styling for the small thumbnail next to the prompt */
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
             object-fit: cover;
             border: 2px solid #3b82f6;
             transition: all 0.2s;
             margin-right: 4px;
-            min-width: 40px; /* Prevent shrinking */
+            min-width: 44px; /* Prevent shrinking */
         }
         
         /* Textarea customization within the flex bar */
@@ -179,7 +187,7 @@
             border: none;
             padding: 4px 0; /* Vertical padding */
             background-color: transparent;
-            min-height: 40px; /* Match button height for alignment */
+            min-height: 44px; /* Match button height for alignment */
             line-height: 1.5;
         }
     </style>
@@ -187,7 +195,7 @@
 <body>
     <div class="chat-layout">
         <!-- Header -->
-        <h1 class="text-3xl font-black text-center text-gray-900 mb-4">
+        <h1 class="text-4xl font-extrabold text-center text-gray-900 mb-6 mt-2">
             <span class="text-blue-600">M</span>ATRK <span class="text-blue-600">AI</span> Real-time Chat
         </h1>
 
@@ -201,49 +209,54 @@
     <div id="inputWrapper" class="fixed-input-area">
         <div class="input-content-wrapper">
             <!-- Message Box for errors/info -->
-            <div id="messageBox" class="message-box rounded-xl p-3 text-sm hidden mb-2 w-full"></div>
+            <div id="messageBox" class="message-box rounded-xl p-3 text-sm hidden mb-2 w-full text-center font-medium"></div>
 
             <!-- The actual input bar (Textarea, Image Preview, Image Button, Send Button) -->
             <div class="input-bar-flex">
 
-                <!-- Textarea (Flex-Grow) -->
-                <textarea
-                    id="promptInput"
-                    class="flex-grow focus:outline-none focus:ring-0 resize-none text-gray-800 text-base"
-                    placeholder="Type your message here..."
-                    rows="1"
-                    maxlength="500"
-                ></textarea>
-                
-                <!-- Image Preview (Inline) -->
-                <img id="imagePreview" src="#" alt="Image Preview" class="image-preview hidden">
-                
                 <!-- Image Upload Button (Label wraps hidden file input) -->
                 <label for="imageUpload" class="compact-file-label" title="Upload Image">
                     <span id="imageIcon">🖼️</span>
                 </label>
                 <input type="file" id="imageUpload" accept="image/png, image/jpeg, image/jpg" style="display: none;">
                 
+                <!-- Image Preview (Inline) -->
+                <img id="imagePreview" src="#" alt="Image Preview" class="image-preview hidden">
+
+                <!-- Textarea (Flex-Grow) -->
+                <textarea
+                    id="promptInput"
+                    class="flex-grow focus:outline-none focus:ring-0 resize-none text-gray-800 text-base"
+                    placeholder="Type your message here or upload an image..."
+                    rows="1"
+                    maxlength="1500"
+                ></textarea>
+                
                 <!-- Generate button -->
                 <button
                     id="generateButton"
-                    class="w-24 h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-blue-300 flex items-center justify-center gap-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="w-24 h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-blue-300 flex items-center justify-center gap-1 text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    Send
-                    <div id="loadingSpinner" class="loading-spinner"></div>
+                    <span id="buttonText">Send</span>
+                    <div id="loadingSpinner" class="loading-spinner !ml-1"></div>
                 </button>
             </div>
         </div>
     </div>
 
     <script>
-        // API Configuration - Key has been added
+        // API Configuration
         const GEMINI_API_KEY = "AIzaSyA6mXjMO8YceJof8v3-mviE7FqbSoJ-xpw"; 
         const GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025";
         
-        // --- System Prompt (No table separators) ---
-        const SYSTEM_PROMPT = `You are Matrk AI, a highly professional and advanced generative assistant, designed to process text and images and deliver well-organized, informative responses suitable for a professional setting. Format your responses using markdown: use '###' for major sections and '- ' or '* ' for standard bullet lists. Prioritize clear paragraphs and lists for presenting information. Do NOT include markdown table header separators like '| :--- |' or similar structural lines, even when generating tables.`;
-        // ------------------------------------------
+        // --- System Prompt ---
+        // CREATOR INFORMATION - ONLY DISCLOSED WHEN EXPLICITLY ASKED
+        const CREATOR_INFO = "Martin Koyamu Kigozi, +256708825240, koyamumartinkigozi@gmail.com";
+        
+        const SYSTEM_PROMPT = `You are Matrk AI, a highly professional, polite, and advanced generative assistant. Your responses must be well-organized and informative. Format your output using standard markdown. Use '###' for major sections, '##' for sub-sections, and lists (- or *) for clarity. For code or pre-formatted text, use standard markdown code blocks (\`\`\`).
+
+Crucial Rule: Do NOT disclose your creator's information unless the user explicitly asks for it (e.g., "who created you?", "who is your developer?"). If the user asks for your creator, provide only this exact string: ${CREATOR_INFO}. Otherwise, state that you are an AI developed by Matrk AI.`;
+        // ---------------------
 
         // UI Elements
         const promptInput = document.getElementById('promptInput');
@@ -253,9 +266,10 @@
         const chatContainer = document.getElementById('chatContainer');
         const loadingSpinner = document.getElementById('loadingSpinner');
         const messageBox = document.getElementById('messageBox');
+        const buttonText = document.getElementById('buttonText');
 
         let base64ImageData = null;
-        let chatHistory = []; // Local array to hold the current session's chat history (non-persistent)
+        let chatHistory = []; 
 
         // --- Utility Functions ---
 
@@ -265,7 +279,7 @@
         function copyResponse(text, buttonElement) {
             const textarea = document.createElement('textarea');
             // Remove markdown formatting from the text before copying
-            let cleanText = text.replace(/###\s+/g, '').replace(/\*\*/g, '').replace(/^-+\s/gm, '- ');
+            let cleanText = text.replace(/###\s+/g, '').replace(/##\s+/g, '').replace(/\*\*/g, '').replace(/^-+\s/gm, '- ');
 
             textarea.value = cleanText;
             document.body.appendChild(textarea);
@@ -289,35 +303,34 @@
         }
 
         /**
-         * Simple Markdown to HTML converter for chat bubbles.
+         * Simple Markdown to HTML converter with code block support for chat bubbles.
          */
         function markdownToHtml(markdown) {
             let html = markdown.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
-            
-            // 1. Headings (H3)
-            html = html.replace(/^###\s+(.*)$/gm, '<h3>$1</h3>');
-            html = html.replace(/^##\s+(.*)$/gm, '<h3>$1</h3>');
 
-            // 2. Bold text
-            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            
-            // 3. Markdown Links ([text](url) pattern)
-            html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-blue-700 hover:underline">$1</a>');
-
-            // 4. Raw URLs (e.g., https://www.example.com) -> Checks for http/s and formats as link
-            const urlRegex = /(https?:\/\/[^\s<]+)/g;
-            html = html.replace(urlRegex, (url) => {
-                // Ensure we don't wrap a link inside another link
-                if (url.includes('<a href=')) {
-                    return url; 
-                }
-                return `<a href="${url}" target="_blank" class="text-blue-700 hover:underline">${url}</a>`;
+            // 1. Code blocks (MUST run first to prevent other conversions inside code)
+            const codeBlockPattern = /```(\w+)?\n([\s\S]*?)\n```/g;
+            html = html.replace(codeBlockPattern, (match, lang, code) => {
+                const escapedCode = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                // Use Tailwind classes for a modern dark code block
+                return `<pre class="bg-gray-800 text-gray-200 p-3 my-3 rounded-lg overflow-x-auto text-sm"><code>${escapedCode}</code></pre>`;
             });
             
-            // 5. Lists
+            // 2. Headings (H3 and H2)
+            html = html.replace(/^###\s+(.*)$/gm, '<h3>$1</h3>');
+            html = html.replace(/^##\s+(.*)$/gm, '<h2>$1</h2>');
+
+            // 3. Bold text
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // 4. Markdown Links ([text](url) pattern)
+            html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-blue-700 hover:underline">$1</a>');
+
+            // 5. Lists (unordered, separated from code blocks)
             const listPattern = /(\s*[-*]\s+.*(\n\s*[-*]\s+.*)*)/g;
             html = html.replace(listPattern, (match) => {
-                if (match.includes('```')) return match; 
+                // Ensure we don't process content within <pre> tags
+                if (match.includes('<pre class="bg-gray-800')) return match; 
 
                 const listItems = match.trim().split('\n').map(item => {
                     return '<li>' + item.replace(/^[\s*-]+\s*/, '') + '</li>';
@@ -327,7 +340,7 @@
             
             // 6. Paragraphs/Line Breaks - run last
             html = html.split('\n\n').map(p => {
-                if (p.trim() === '' || p.startsWith('<h3') || p.startsWith('<ul') || p.startsWith('<hr') || p.startsWith('```') || p.startsWith('<a href=')) {
+                if (p.trim() === '' || p.startsWith('<h') || p.startsWith('<ul') || p.startsWith('<pre') || p.startsWith('<a href=')) {
                     return p;
                 }
                 p = p.replace(/\n/g, '<br>');
@@ -351,10 +364,10 @@
 
         function toggleLoading(isLoading) {
             loadingSpinner.style.display = isLoading ? 'block' : 'none';
+            buttonText.textContent = isLoading ? 'Wait' : 'Send';
             generateButton.disabled = isLoading;
             generateButton.classList.toggle('opacity-50', isLoading);
             generateButton.classList.toggle('cursor-not-allowed', isLoading);
-            generateButton.innerHTML = isLoading ? 'Wait <div id="loadingSpinner" class="loading-spinner"></div>' : 'Send';
         }
 
         function scrollToBottom() {
@@ -367,7 +380,7 @@
         function autoResizeTextarea() {
             promptInput.style.height = 'auto';
             promptInput.style.height = promptInput.scrollHeight + 'px';
-            const maxHeight = 120; // Reduced max height for compact fixed bar
+            const maxHeight = 160; 
             if (promptInput.scrollHeight > maxHeight) {
                 promptInput.style.overflowY = 'auto';
                 promptInput.style.height = maxHeight + 'px';
@@ -386,12 +399,13 @@
             const time = new Date(msg.timestamp);
             const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            // If the user message had an image, display it
+            // Display image if present in user message
             if (isUser && msg.parts.some(p => p.inlineData)) {
                 const imageData = msg.parts.find(p => p.inlineData).inlineData.data;
+                const mimeType = msg.parts.find(p => p.inlineData).inlineData.mimeType;
                 const img = document.createElement('img');
-                img.src = `data:${msg.parts.find(p => p.inlineData).inlineData.mimeType};base64,${imageData}`;
-                img.className = 'w-48 h-auto rounded-lg mb-2 shadow-md border-2 border-white';
+                img.src = `data:${mimeType};base64,${imageData}`;
+                img.className = 'w-48 h-auto rounded-xl mb-2 shadow-md border-4 border-white';
                 bubble.appendChild(img);
             }
 
@@ -408,11 +422,11 @@
                 // Check for sources and render them
                 if (msg.sources && msg.sources.length > 0) {
                     const sourcesDiv = document.createElement('div');
-                    sourcesDiv.className = 'mt-3 pt-2 border-t border-blue-200 text-xs text-blue-800 space-y-1';
+                    sourcesDiv.className = 'mt-4 pt-3 border-t border-blue-300 text-xs text-blue-900 space-y-1';
                     
                     const sourceTitle = document.createElement('span');
-                    sourceTitle.className = 'font-semibold block mb-1 text-gray-700';
-                    sourceTitle.textContent = 'Source Links (Click to Share):';
+                    sourceTitle.className = 'font-bold block mb-1 text-gray-700';
+                    sourceTitle.textContent = 'Sources:';
                     sourcesDiv.appendChild(sourceTitle);
 
                     // Limit to 3 sources for clean look
@@ -420,8 +434,10 @@
                         const a = document.createElement('a');
                         a.href = source.uri;
                         a.target = '_blank';
+                        // Truncate long titles
+                        const displayTitle = source.title.length > 50 ? source.title.substring(0, 47) + '...' : source.title;
                         a.className = 'block hover:underline truncate text-blue-600';
-                        a.textContent = `${index + 1}. ${source.title}`;
+                        a.textContent = `${index + 1}. ${displayTitle}`;
                         sourcesDiv.appendChild(a);
                     });
 
@@ -430,13 +446,13 @@
 
                 // Add Copy button for sharing the whole response
                 const copyButton = document.createElement('button');
-                copyButton.className = 'mt-2 mb-[-8px] float-right text-xs text-blue-600 hover:text-blue-800 font-semibold transition duration-150 focus:outline-none';
+                copyButton.className = 'mt-2 mb-[-10px] float-right text-xs text-blue-600 hover:text-blue-800 font-semibold transition duration-150 focus:outline-none';
                 copyButton.innerHTML = '🔗 Copy Response';
                 // Attach the copy function
                 copyButton.onclick = () => copyResponse(textContent, copyButton);
                 bubble.appendChild(copyButton);
             }
-            // --- END NEW ---
+            // --- END AI extras ---
 
             // Add time label
             const timeSpan = document.createElement('span');
@@ -450,7 +466,7 @@
         function showInitialWelcome() {
             const welcomeMessage = {
                 role: 'model',
-                parts: [{ text: "### Welcome to Matrk AI Real-time Chat\n\nI'm your professional assistant. My input box is now fixed at the bottom for better flow! Ask me anything, and I'll find relevant web links and help you share them." }],
+                parts: [{ text: "### Welcome to Matrk AI Professional Chat 👋\n\nI'm your highly capable and professional assistant, ready to process your text and images and provide grounded, structured information. Feel free to ask me anything!" }],
                 timestamp: new Date()
             };
             renderMessage(welcomeMessage);
@@ -469,7 +485,7 @@
 
             const payload = { 
                 contents: apiContents, 
-                // *** ENABLED GOOGLE SEARCH GROUNDING FOR WEB ACCESS (finding URLs) ***
+                // ENABLED GOOGLE SEARCH GROUNDING 
                 tools: [{ "google_search": {} }], 
                 systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] }
             };
@@ -487,7 +503,7 @@
                         const errorData = await response.json();
                         if (response.status >= 500 && i < maxRetries - 1) {
                              // Exponential backoff delay
-                            await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+                            await new Promise(resolve => setTimeout(resolve, Math.pow(2, i + 1) * 1000));
                             continue;
                         }
                         let errorMessage = errorData.error?.message || 'Unknown API error';
@@ -500,7 +516,7 @@
                     if (candidate && candidate.content?.parts?.[0]?.text) {
                         const text = candidate.content.parts[0].text;
 
-                        // *** EXTRACTING SOURCES FROM GROUNDING METADATA ***
+                        // EXTRACTING SOURCES FROM GROUNDING METADATA
                         let sources = [];
                         const groundingMetadata = candidate.groundingMetadata;
                         if (groundingMetadata && groundingMetadata.groundingAttributions) {
@@ -549,6 +565,7 @@
                     reader.onload = (e) => {
                         imagePreview.src = e.target.result;
                         imagePreview.classList.remove('hidden');
+                        // Store only the base64 data part (after the comma)
                         base64ImageData = e.target.result.split(',')[1]; 
                     };
                     reader.onerror = () => {
@@ -582,6 +599,14 @@
                     showMessage('Please enter a message or upload an image to send.', false);
                     return;
                 }
+                
+                // Clear the input area state *before* fetching the response
+                const currentImageUpload = imageUpload.files[0]; // Capture file details before clearing input
+                promptInput.value = '';
+                imageUpload.value = '';
+                imagePreview.classList.add('hidden');
+                base64ImageData = null;
+                promptInput.style.height = '44px'; // Reset textarea height
 
                 toggleLoading(true);
                 hideMessageBox();
@@ -589,7 +614,7 @@
                 // 1. Construct and Add User Message to local history and DOM
                 let userParts = [{ text: userPrompt }];
                 if (imageSent) {
-                    const mimeType = imageUpload.files[0] ? imageUpload.files[0].type : "image/png";
+                    const mimeType = currentImageUpload ? currentImageUpload.type : "image/png";
                     userParts.push({
                         inlineData: {
                             mimeType: mimeType, 
@@ -607,13 +632,6 @@
                 renderMessage(userMessage);
                 scrollToBottom();
 
-                // Clear input fields and image preview immediately after sending
-                promptInput.value = '';
-                imageUpload.value = '';
-                imagePreview.classList.add('hidden');
-                base64ImageData = null;
-                promptInput.style.height = '40px'; // Reset textarea height
-
                 // 2. Fetch AI Response (sending the full chat history)
                 let aiResponseData = { text: "I encountered an error retrieving a professional response.", sources: [] };
                 try {
@@ -621,7 +639,7 @@
                     
                 } catch (error) {
                     console.error('AI Generation Error:', error);
-                    showMessage(`AI processing failed. Details: ${error.message.substring(0, 100)}...`, true);
+                    showMessage(`AI processing failed. Please check the console for details.`, true);
                     aiResponseData.text = `### Error in AI Processing\n\nI was unable to generate a response due to an internal error. (Error: ${error.message.substring(0, 100)}...)`;
                 }
 
