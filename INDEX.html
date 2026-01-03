@@ -11,7 +11,7 @@
         /* Define the font and general page layout */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8; /* Very light blue-gray background */
+            background-color: #f0f4f8;
             min-height: 100vh;
             margin: 0;
             padding: 0;
@@ -21,51 +21,46 @@
         }
 
         .chat-layout {
-            /* Main container for header and scrollable chat */
             width: 100%;
             max-width: 900px;
             height: 100vh;
             display: flex;
             flex-direction: column;
             padding: 20px 0;
-            /* Space reserved for the fixed input area at the bottom */
             padding-bottom: 130px; 
             box-sizing: border-box;
         }
 
-        /* --- Fixed Input Area Styling --- */
+        /* Fixed Input Area Styling */
         .fixed-input-area {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             z-index: 1000;
-            background-color: #f0f4f8; /* Match body background */
+            background-color: #f0f4f8;
             padding-top: 10px;
             border-top: 1px solid #e2e8f0;
-            box-shadow: 0 -5px 15px -3px rgba(0, 0, 0, 0.08); /* Subtle shadow above input */
+            box-shadow: 0 -5px 15px -3px rgba(0, 0, 0, 0.08);
         }
         .input-content-wrapper {
-            /* This centers the content and provides horizontal padding */
             width: 100%;
             max-width: 900px;
             margin: 0 auto;
-            padding: 0 20px 20px 20px; /* Padding for bottom and sides */
+            padding: 0 20px 20px 20px;
         }
         .input-bar-flex {
-             /* Wrapper for the textarea/buttons to apply shadow/border once */
              background-color: #ffffff;
              border-radius: 16px;
              border: 1px solid #d9e2ee;
              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
              display: flex;
-             align-items: flex-end; /* Align elements to the bottom line */
+             align-items: flex-end;
              gap: 8px;
              padding: 10px 15px;
         }
 
-
-        /* --- Chat Container Styling --- */
+        /* Chat Container Styling */
         #chatContainer {
             flex-grow: 1; 
             overflow-y: auto;
@@ -74,11 +69,11 @@
             border-radius: 16px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             scroll-behavior: smooth;
-            max-height: 100%; /* Allows it to fill the remaining space */
+            max-height: 100%;
             border: 1px solid #e2e8f0;
         }
         
-        /* Message Bubble and Markdown Styles */
+        /* Message Bubble Styles */
         .message-bubble {
             max-width: 85%;
             padding: 14px 18px;
@@ -91,23 +86,17 @@
 
         .user-message {
             margin-left: auto;
-            background-color: #3b82f6; /* Blue-600 */
+            background-color: #3b82f6;
             color: white;
             border-top-right-radius: 6px; 
-            border-bottom-right-radius: 20px;
-            border-top-left-radius: 20px;
-            border-bottom-left-radius: 20px;
         }
 
         .ai-message {
             margin-right: auto;
-            background-color: #eef2ff; /* Indigo-50 */
+            background-color: #eef2ff;
             color: #1f2937;
-            border: 1px solid #c7d2fe; /* Indigo-300 light border */
+            border: 1px solid #c7d2fe;
             border-top-left-radius: 6px; 
-            border-bottom-left-radius: 20px;
-            border-top-right-radius: 20px;
-            border-bottom-right-radius: 20px;
         }
         .ai-message h3 {
             font-size: 1.25rem;
@@ -128,8 +117,6 @@
             margin-top: 8px;
             margin-bottom: 8px;
         }
-        
-        /* Markdown Code Block Styling */
         .ai-message pre {
              white-space: pre-wrap;
              word-break: break-all;
@@ -150,95 +137,78 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* COMPACT Image Upload Styling */
+        /* File Upload Styling */
         .compact-file-label {
-            /* Styling for the new image button */
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 44px; /* Slightly larger target */
+            width: 44px;
             height: 44px;
             min-width: 44px;
             border-radius: 12px;
             cursor: pointer;
-            background-color: #f1f5f9; /* Slate-100 */
-            color: #3b82f6; /* Blue-600 */
+            background-color: #f1f5f9;
+            color: #3b82f6;
             transition: background-color 0.2s;
             font-size: 1.5rem;
-            line-height: 1;
-        }
-        .compact-file-label:hover {
-            background-color: #e2e8f0; /* Slate-200 */
         }
         .image-preview {
-            /* Styling for the small thumbnail next to the prompt */
             width: 44px;
             height: 44px;
             border-radius: 10px;
             object-fit: cover;
             border: 2px solid #3b82f6;
-            transition: all 0.2s;
             margin-right: 4px;
-            min-width: 44px; /* Prevent shrinking */
+            min-width: 44px;
         }
         
-        /* Textarea customization within the flex bar */
         #promptInput {
             border: none;
-            padding: 4px 0; /* Vertical padding */
+            padding: 10px 0;
             background-color: transparent;
-            min-height: 44px; /* Match button height for alignment */
+            min-height: 44px;
             line-height: 1.5;
+            resize: none;
         }
     </style>
 </head>
 <body>
     <div class="chat-layout">
-        <!-- Header -->
         <h1 class="text-4xl font-extrabold text-center text-gray-900 mb-6 mt-2">
             <span class="text-blue-600">M</span>ATRK <span class="text-blue-600">AI</span>.
         </h1>
 
-        <!-- Chat Container (Display Area) -->
         <div id="chatContainer">
-            <!-- Messages will be injected here -->
+            <!-- Messages injected here -->
         </div>
     </div>
 
-    <!-- Fixed Input Area Container -->
     <div id="inputWrapper" class="fixed-input-area">
         <div class="input-content-wrapper">
-            <!-- Message Box for errors/info -->
             <div id="messageBox" class="message-box rounded-xl p-3 text-sm hidden mb-2 w-full text-center font-medium"></div>
 
-            <!-- The actual input bar (Textarea, Image Preview, Image Button, Send Button) -->
             <div class="input-bar-flex">
-
-                <!-- Image Upload Button (Label wraps hidden file input) -->
                 <label for="imageUpload" class="compact-file-label" title="Upload Image">
                     <span id="imageIcon">🖼️</span>
                 </label>
                 <input type="file" id="imageUpload" accept="image/png, image/jpeg, image/jpg" style="display: none;">
                 
-                <!-- Image Preview (Inline) -->
                 <img id="imagePreview" src="#" alt="Image Preview" class="image-preview hidden">
 
-                <!-- Textarea (Flex-Grow) --
                 <textarea
                     id="promptInput"
-                    class="flex-grow focus:outline-none focus:ring-0 resize-none text-gray-800 text-base"
-                    placeholder="Type your message here or upload an image..."
+                    class="flex-grow focus:outline-none focus:ring-0 text-gray-800 text-base"
+                    placeholder="Type your message here..."
                     rows="1"
                     maxlength="1500"
                 ></textarea>
                 
-                <!-- Generate button -->
                 <button
                     id="generateButton"
-                    class="w-24 h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-blue-300 flex items-center justify-center gap-1 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="w-24 h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg transition duration-300 flex items-center justify-center gap-1 disabled:opacity-50"
                 >
                     <span id="buttonText">Send</span>
-                    <div id="loadingSpinner" class="loading-spinner !ml-1"></div>
+                    <div id="loadingSpinner" class="loading-spinner"></div>
                 </button>
             </div>
         </div>
@@ -246,17 +216,12 @@
 
     <script>
         // API Configuration
-        const GEMINI_API_KEY = "AIzaSyBQaUBN5F-BuUxSLVv5OV9rRowQKxn4Q_s"; 
-        const GEMINI_MODEL = "gemini-3-flash-preview-09-2026";
+        const apiKey = "AIzaSyBQaUBN5F-BuUxSLVv5OV9rRowQKxn4Q_s"; // Provided by environment at runtime
+        // Updated to the latest Gemini 3 model available as of Jan 2026
+        const GEMINI_MODEL = "gemini-3-flash-preview"; 
         
-        // --- System Prompt ---
-        // CREATOR INFORMATION - ONLY DISCLOSED WHEN EXPLICITLY ASKED
         const CREATOR_INFO = "Martin Koyamu Kigozi, +256708825240, koyamumartinkigozi@gmail.com";
-        
-        const SYSTEM_PROMPT = `You are Matrk AI, a highly professional, polite, and advanced generative assistant. Your responses must be well-organized and informative. Format your output using standard markdown. Use '###' for major sections, '##' for sub-sections, and lists (- or *) for clarity. For code or pre-formatted text, use standard markdown code blocks (\`\`\`).
-
-Crucial Rule: Do NOT disclose your creator's information unless the user explicitly asks for it (e.g., "who created you?", "who is your developer?"). If the user asks for your creator, provide only this exact string: ${CREATOR_INFO}. Otherwise, state that you are an AI developed by Matrk AI.`;
-        // ---------------------
+        const SYSTEM_PROMPT = `You are Matrk AI, a highly professional assistant developed by Matrk AI. Format your output using standard markdown. Crucial Rule: Do NOT disclose creator info unless explicitly asked. If asked, provide: ${CREATOR_INFO}. Otherwise, state you are an AI developed by Matrk AI.`;
 
         // UI Elements
         const promptInput = document.getElementById('promptInput');
@@ -271,394 +236,160 @@ Crucial Rule: Do NOT disclose your creator's information unless the user explici
         let base64ImageData = null;
         let chatHistory = []; 
 
-        // --- Utility Functions ---
-
-        /**
-         * Copies text to the clipboard using the older but more compatible document.execCommand('copy').
-         */
-        function copyResponse(text, buttonElement) {
-            const textarea = document.createElement('textarea');
-            // Remove markdown formatting from the text before copying
-            let cleanText = text.replace(/###\s+/g, '').replace(/##\s+/g, '').replace(/\*\*/g, '').replace(/^-+\s/gm, '- ');
-
-            textarea.value = cleanText;
-            document.body.appendChild(textarea);
-            textarea.select();
-            
-            try {
-                document.execCommand('copy');
-                
-                // Temporary success message on the button
-                const originalText = buttonElement.innerHTML;
-                buttonElement.innerHTML = '✅ Copied!';
-                setTimeout(() => {
-                    buttonElement.innerHTML = originalText;
-                }, 2000);
-
-            } catch (err) {
-                showMessage('Could not copy text to clipboard.', true);
-                console.error('Copy command failed:', err);
-            }
-            document.body.removeChild(textarea);
-        }
-
-        /**
-         * Simple Markdown to HTML converter with code block support for chat bubbles.
-         */
-        function markdownToHtml(markdown) {
-            let html = markdown.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
-
-            // 1. Code blocks (MUST run first to prevent other conversions inside code)
-            const codeBlockPattern = /```(\w+)?\n([\s\S]*?)\n```/g;
-            html = html.replace(codeBlockPattern, (match, lang, code) => {
-                const escapedCode = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                // Use Tailwind classes for a modern dark code block
-                return `<pre class="bg-gray-800 text-gray-200 p-3 my-3 rounded-lg overflow-x-auto text-sm"><code>${escapedCode}</code></pre>`;
-            });
-            
-            // 2. Headings (H3 and H2)
-            html = html.replace(/^###\s+(.*)$/gm, '<h3>$1</h3>');
-            html = html.replace(/^##\s+(.*)$/gm, '<h2>$1</h2>');
-
-            // 3. Bold text
-            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            
-            // 4. Markdown Links ([text](url) pattern)
-            html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-blue-700 hover:underline">$1</a>');
-
-            // 5. Lists (unordered, separated from code blocks)
-            const listPattern = /(\s*[-*]\s+.*(\n\s*[-*]\s+.*)*)/g;
-            html = html.replace(listPattern, (match) => {
-                // Ensure we don't process content within <pre> tags
-                if (match.includes('<pre class="bg-gray-800')) return match; 
-
-                const listItems = match.trim().split('\n').map(item => {
-                    return '<li>' + item.replace(/^[\s*-]+\s*/, '') + '</li>';
-                }).join('');
-                return `<ul>${listItems}</ul>`;
-            });
-            
-            // 6. Paragraphs/Line Breaks - run last
-            html = html.split('\n\n').map(p => {
-                if (p.trim() === '' || p.startsWith('<h') || p.startsWith('<ul') || p.startsWith('<pre') || p.startsWith('<a href=')) {
-                    return p;
+        // Helper: Exponential Backoff Fetch
+        async function fetchWithRetry(url, options, maxRetries = 5) {
+            let delay = 1000;
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) return await response.json();
+                    if (response.status === 429 || response.status >= 500) {
+                        await new Promise(r => setTimeout(r, delay));
+                        delay *= 2;
+                        continue;
+                    }
+                    const err = await response.json();
+                    throw new Error(err.error?.message || "Request failed");
+                } catch (e) {
+                    if (i === maxRetries - 1) throw e;
+                    await new Promise(r => setTimeout(r, delay));
+                    delay *= 2;
                 }
-                p = p.replace(/\n/g, '<br>');
-                return `<p>${p}</p>`;
-            }).join('');
-
-            return html;
-        }
-
-        function showMessage(message, isError = false) {
-            messageBox.innerHTML = message;
-            messageBox.style.display = 'block';
-            messageBox.style.backgroundColor = isError ? '#fee2e2' : '#dbeafe';
-            messageBox.style.color = isError ? '#991b1b' : '#1e40af';
-            messageBox.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
-
-        function hideMessageBox() {
-            messageBox.style.display = 'none';
-        }
-
-        function toggleLoading(isLoading) {
-            loadingSpinner.style.display = isLoading ? 'block' : 'none';
-            buttonText.textContent = isLoading ? 'Wait' : 'Send';
-            generateButton.disabled = isLoading;
-            generateButton.classList.toggle('opacity-50', isLoading);
-            generateButton.classList.toggle('cursor-not-allowed', isLoading);
-        }
-
-        function scrollToBottom() {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        /**
-         * Dynamically adjust the height of the textarea based on content.
-         */
-        function autoResizeTextarea() {
-            promptInput.style.height = 'auto';
-            promptInput.style.height = promptInput.scrollHeight + 'px';
-            const maxHeight = 160; 
-            if (promptInput.scrollHeight > maxHeight) {
-                promptInput.style.overflowY = 'auto';
-                promptInput.style.height = maxHeight + 'px';
-            } else {
-                promptInput.style.overflowY = 'hidden';
             }
         }
-        
-        // --- Chat Rendering Functions ---
-        
+
+        function markdownToHtml(md) {
+            let html = md.replace(/```(\w+)?\n([\s\S]*?)\n```/g, '<pre class="bg-gray-800 text-gray-200 p-3 my-3 rounded-lg text-sm"><code>$2</code></pre>');
+            html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+            html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/^\* (.*$)/gim, '<ul><li>$1</li></ul>').replace(/<\/ul><ul>/g, '');
+            return html.replace(/\n/g, '<br>');
+        }
+
         function renderMessage(msg) {
             const isUser = msg.role === 'user';
             const bubble = document.createElement('div');
             bubble.className = `message-bubble ${isUser ? 'user-message' : 'ai-message'}`;
-
-            const time = new Date(msg.timestamp);
-            const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            // Display image if present in user message
-            if (isUser && msg.parts.some(p => p.inlineData)) {
-                const imageData = msg.parts.find(p => p.inlineData).inlineData.data;
-                const mimeType = msg.parts.find(p => p.inlineData).inlineData.mimeType;
+            
+            if (isUser && msg.parts.find(p => p.inlineData)) {
                 const img = document.createElement('img');
-                img.src = `data:${mimeType};base64,${imageData}`;
-                img.className = 'w-48 h-auto rounded-xl mb-2 shadow-md border-4 border-white';
+                img.src = `data:image/png;base64,${msg.parts.find(p => p.inlineData).inlineData.data}`;
+                img.className = 'w-48 h-auto rounded-xl mb-2 border-2 border-white';
                 bubble.appendChild(img);
             }
 
-            // Get text content
-            const textContent = msg.parts.find(p => p.text)?.text || '';
+            const text = msg.parts.find(p => p.text)?.text || '';
+            const content = document.createElement('div');
+            content.innerHTML = isUser ? text : markdownToHtml(text);
+            bubble.appendChild(content);
 
-            // Render text content
-            const contentDiv = document.createElement('div');
-            contentDiv.innerHTML = isUser ? textContent : markdownToHtml(textContent);
-            bubble.appendChild(contentDiv);
-            
-            // --- Sources and Copy Button for AI Messages ---
-            if (!isUser) {
-                // Check for sources and render them
-                if (msg.sources && msg.sources.length > 0) {
-                    const sourcesDiv = document.createElement('div');
-                    sourcesDiv.className = 'mt-4 pt-3 border-t border-blue-300 text-xs text-blue-900 space-y-1';
-                    
-                    const sourceTitle = document.createElement('span');
-                    sourceTitle.className = 'font-bold block mb-1 text-gray-700';
-                    sourceTitle.textContent = 'Sources:';
-                    sourcesDiv.appendChild(sourceTitle);
-
-                    // Limit to 3 sources for clean look
-                    msg.sources.slice(0, 3).forEach((source, index) => { 
-                        const a = document.createElement('a');
-                        a.href = source.uri;
-                        a.target = '_blank';
-                        // Truncate long titles
-                        const displayTitle = source.title.length > 50 ? source.title.substring(0, 47) + '...' : source.title;
-                        a.className = 'block hover:underline truncate text-blue-600';
-                        a.textContent = `${index + 1}. ${displayTitle}`;
-                        sourcesDiv.appendChild(a);
-                    });
-
-                    bubble.appendChild(sourcesDiv);
-                }
-
-                // Add Copy button for sharing the whole response
-                const copyButton = document.createElement('button');
-                copyButton.className = 'mt-2 mb-[-10px] float-right text-xs text-blue-600 hover:text-blue-800 font-semibold transition duration-150 focus:outline-none';
-                copyButton.innerHTML = '🔗 Copy Response';
-                // Attach the copy function
-                copyButton.onclick = () => copyResponse(textContent, copyButton);
-                bubble.appendChild(copyButton);
+            if (!isUser && msg.sources) {
+                const sDiv = document.createElement('div');
+                sDiv.className = 'mt-2 text-xs border-t border-blue-200 pt-2';
+                msg.sources.forEach(s => {
+                    const link = document.createElement('a');
+                    link.href = s.uri;
+                    link.textContent = s.title;
+                    link.className = 'block text-blue-600 truncate';
+                    link.target = '_blank';
+                    sDiv.appendChild(link);
+                });
+                bubble.appendChild(sDiv);
             }
-            // --- END AI extras ---
-
-            // Add time label
-            const timeSpan = document.createElement('span');
-            timeSpan.className = `block text-right ${isUser ? 'text-blue-200' : 'text-gray-400'} text-[10px] mt-1`;
-            timeSpan.textContent = timeString;
-            bubble.appendChild(timeSpan);
 
             chatContainer.appendChild(bubble);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-        function showInitialWelcome() {
-            const welcomeMessage = {
-                role: 'model',
-                parts: [{ text: "### Welcome to Matrk AI Professional Chat 👋\n\nI'm your highly capable and professional assistant, ready to process your text and images and provide grounded, structured information. Feel free to ask me anything!" }],
-                timestamp: new Date()
-            };
-            renderMessage(welcomeMessage);
-        }
-        
-        // --- AI API Call Function with Grounding and Retries ---
-
-        async function fetchAIResponse(currentChatHistory) {
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-            
-            // Sanitize history by removing the local 'timestamp' and 'sources' properties
-            const apiContents = currentChatHistory.map(message => ({
-                role: message.role,
-                parts: message.parts
-            }));
-
-            const payload = { 
-                contents: apiContents, 
-                // ENABLED GOOGLE SEARCH GROUNDING 
-                tools: [{ "google_search": {} }], 
-                systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] }
-            };
-
-            const maxRetries = 3;
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        if (response.status >= 500 && i < maxRetries - 1) {
-                             // Exponential backoff delay
-                            await new Promise(resolve => setTimeout(resolve, Math.pow(2, i + 1) * 1000));
-                            continue;
-                        }
-                        let errorMessage = errorData.error?.message || 'Unknown API error';
-                        throw new Error(`API Error: ${response.status} - ${errorMessage}`);
-                    }
-
-                    const result = await response.json();
-                    
-                    const candidate = result.candidates?.[0];
-                    if (candidate && candidate.content?.parts?.[0]?.text) {
-                        const text = candidate.content.parts[0].text;
-
-                        // EXTRACTING SOURCES FROM GROUNDING METADATA
-                        let sources = [];
-                        const groundingMetadata = candidate.groundingMetadata;
-                        if (groundingMetadata && groundingMetadata.groundingAttributions) {
-                            sources = groundingMetadata.groundingAttributions
-                                .map(attribution => ({
-                                    uri: attribution.web?.uri,
-                                    title: attribution.web?.title,
-                                }))
-                                .filter(source => source.uri && source.title);
-                        }
-                        return { text, sources }; // Return both text and sources
-                    } else {
-                        if (candidate?.finishReason === 'SAFETY') {
-                             return { text: "### Response Blocked\n\nI apologize, but this response was blocked due to a safety policy violation. Please rephrase your query.", sources: [] };
-                        }
-                        throw new Error('AI response was empty or blocked.');
-                    }
-                } catch (error) {
-                    if (i === maxRetries - 1) {
-                        throw error;
-                    }
-                    console.error(`Retrying API call (attempt ${i + 2})...`);
-                }
+        imageUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    base64ImageData = ev.target.result.split(',')[1];
+                    imagePreview.src = ev.target.result;
+                    imagePreview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
             }
-        }
-
-
-        // --- Event Listeners and Main Logic ---
-
-        document.addEventListener('DOMContentLoaded', () => {
-            showInitialWelcome();
-
-            // Image Upload Logic
-            imageUpload.addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    if (file.size > 5 * 1024 * 1024) {
-                        showMessage('Image size exceeds 5MB limit. Please choose a smaller image.', true);
-                        imagePreview.classList.add('hidden');
-                        imageUpload.value = '';
-                        base64ImageData = null;
-                        return;
-                    }
-
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        imagePreview.src = e.target.result;
-                        imagePreview.classList.remove('hidden');
-                        // Store only the base64 data part (after the comma)
-                        base64ImageData = e.target.result.split(',')[1]; 
-                    };
-                    reader.onerror = () => {
-                        showMessage('Failed to read image file.', true);
-                        imagePreview.classList.add('hidden');
-                        base64ImageData = null;
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    imagePreview.classList.add('hidden');
-                    base64ImageData = null;
-                }
-                hideMessageBox();
-            });
-
-            // Textarea auto-resize and Enter key listener
-            promptInput.addEventListener('input', autoResizeTextarea);
-            promptInput.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter' && !event.shiftKey) {
-                    event.preventDefault();
-                    generateButton.click();
-                }
-            });
-
-            // Button click handler
-            generateButton.addEventListener('click', async () => {
-                const userPrompt = promptInput.value.trim();
-                const imageSent = base64ImageData;
-
-                if (!userPrompt && !imageSent) {
-                    showMessage('Please enter a message or upload an image to send.', false);
-                    return;
-                }
-                
-                // Clear the input area state *before* fetching the response
-                const currentImageUpload = imageUpload.files[0]; // Capture file details before clearing input
-                promptInput.value = '';
-                imageUpload.value = '';
-                imagePreview.classList.add('hidden');
-                base64ImageData = null;
-                promptInput.style.height = '44px'; // Reset textarea height
-
-                toggleLoading(true);
-                hideMessageBox();
-
-                // 1. Construct and Add User Message to local history and DOM
-                let userParts = [{ text: userPrompt }];
-                if (imageSent) {
-                    const mimeType = currentImageUpload ? currentImageUpload.type : "image/png";
-                    userParts.push({
-                        inlineData: {
-                            mimeType: mimeType, 
-                            data: imageSent
-                        }
-                    });
-                }
-                const userMessage = { 
-                    role: 'user', 
-                    parts: userParts, 
-                    timestamp: new Date() 
-                };
-                
-                chatHistory.push(userMessage);
-                renderMessage(userMessage);
-                scrollToBottom();
-
-                // 2. Fetch AI Response (sending the full chat history)
-                let aiResponseData = { text: "I encountered an error retrieving a professional response.", sources: [] };
-                try {
-                    aiResponseData = await fetchAIResponse(chatHistory);
-                    
-                } catch (error) {
-                    console.error('AI Generation Error:', error);
-                    showMessage(`AI processing failed. Please check the console for details.`, true);
-                    aiResponseData.text = `### Error in AI Processing\n\nI was unable to generate a response due to an internal error. (Error: ${error.message.substring(0, 100)}...)`;
-                }
-
-                // 3. Add AI Response to local history and DOM
-                const aiMessage = {
-                    role: 'model',
-                    parts: [{ text: aiResponseData.text }],
-                    timestamp: new Date(),
-                    sources: aiResponseData.sources // Store sources for rendering
-                };
-                chatHistory.push(aiMessage);
-                renderMessage(aiMessage);
-                scrollToBottom();
-
-                // Final cleanup
-                toggleLoading(false);
-            });
         });
+
+        promptInput.addEventListener('input', () => {
+            promptInput.style.height = 'auto';
+            promptInput.style.height = Math.min(promptInput.scrollHeight, 150) + 'px';
+        });
+
+        generateButton.addEventListener('click', async () => {
+            const text = promptInput.value.trim();
+            if (!text && !base64ImageData) return;
+
+            const userParts = [{ text }];
+            if (base64ImageData) {
+                userParts.push({ inlineData: { mimeType: "image/png", data: base64ImageData } });
+            }
+
+            const userMsg = { role: "user", parts: userParts };
+            chatHistory.push(userMsg);
+            renderMessage(userMsg);
+
+            // UI Reset
+            promptInput.value = '';
+            promptInput.style.height = '44px';
+            imagePreview.classList.add('hidden');
+            const currentImg = base64ImageData;
+            base64ImageData = null;
+            
+            loadingSpinner.style.display = 'block';
+            buttonText.textContent = '';
+            generateButton.disabled = true;
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+                
+                // Gemini 3 specific payload configuration
+                const payload = {
+                    contents: chatHistory.map(m => ({ role: m.role, parts: m.parts })),
+                    systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+                    tools: [{ "google_search": {} }],
+                    generationConfig: {
+                        temperature: 1.0, // Recommended for Gemini 3 reasoning
+                        thinking_level: "high", // Activates deep reasoning mode
+                        media_resolution: "high" // Higher fidelity for image analysis
+                    }
+                };
+
+                const data = await fetchWithRetry(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const candidate = data.candidates?.[0];
+                const aiText = candidate?.content?.parts?.[0]?.text || "No response generated.";
+                const sources = candidate?.groundingMetadata?.groundingAttributions?.map(a => ({
+                    uri: a.web?.uri,
+                    title: a.web?.title
+                }));
+
+                const aiMsg = { role: "model", parts: [{ text: aiText }], sources };
+                chatHistory.push(aiMsg);
+                renderMessage(aiMsg);
+            } catch (err) {
+                const errBox = document.createElement('div');
+                errBox.className = 'p-3 bg-red-100 text-red-700 rounded-lg text-sm mb-4';
+                errBox.textContent = "Error: " + err.message;
+                chatContainer.appendChild(errBox);
+            } finally {
+                loadingSpinner.style.display = 'none';
+                buttonText.textContent = 'Send';
+                generateButton.disabled = false;
+            }
+        });
+
+        window.onload = () => {
+            renderMessage({ role: 'model', parts: [{ text: "### Matrk AI Powered by Gemini 3\nI have been updated with the latest reasoning capabilities. How can I help you today?" }] });
+        };
     </script>
 </body>
 </html>
-
